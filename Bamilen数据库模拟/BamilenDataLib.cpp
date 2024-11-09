@@ -299,14 +299,17 @@ void DeleteAccount(DataLib *DL)
 	cin >> SelectAccountID;
 	while (true)
 	{
-		if (DL->Account[SelectAccountID].AccountID == 0)
+		if (0 < SelectAccountID < MaxAccountQuality)
 		{
-			cout << "用户不存在，请重新输入!" << endl;
-			cout << "输入你要删除的用户的ID：" << endl;
-			cin >> SelectAccountID;
-		}
-		else {
-			break;
+			if (DL->Account[SelectAccountID].AccountID == 0)
+			{
+				cout << "用户不存在，请重新输入!" << endl;
+				cout << "输入你要删除的用户的ID：" << endl;
+				cin >> SelectAccountID;
+			}
+			else {
+				break;
+			}
 		}
 	}	
 
@@ -390,6 +393,319 @@ void ExhibitAccount(DataLib *DL)
 	}
 }
 
+void UseIDFind(DataLib* DL, int id)
+{
+	while (true)
+	{
+		cout << "输入用户ID:" << endl;
+		cin >> id;
+		if (0 < id < MaxAccountQuality)
+		{
+			if (DL->Account[id].AccountID != 0)
+			{
+				break;
+			}
+		}
+		cout << "用户不存在，请重新输入！" << endl;
+	}
+	system("cls");
+	cout << "用户名：" << DL->Account[id].AccountName << endl;
+	cout << "用户ID：" << DL->Account[id].AccountID << endl;
+	cout << "邮箱：" << DL->Account[id].EmailAddress << endl;
+	cout << "注册时间：" << DL->Account[id].RegisterTime << endl;
+	system("pause");
+}
+
+void UseNameFind(DataLib* DL, string name)
+{
+	int id = 0;
+	while (true)
+	{
+		cout << "输入用户名:" << endl;
+		cin >> name;
+		for (int Check = 1; Check < MaxAccountQuality; Check++)
+		{
+			if (name == DL->Account[Check].AccountName)
+			{
+				id = DL->Account[Check].AccountID;
+				break;
+			}
+		}
+		if (DL->Account[id].AccountID != 0)
+		{
+			break;
+		}
+		cout << "用户不存在，请重新输入！" << endl;
+	}
+	system("cls");
+	cout << "用户名：" << DL->Account[id].AccountName << endl;
+	cout << "用户ID：" << DL->Account[id].AccountID << endl;
+	cout << "邮箱：" << DL->Account[id].EmailAddress << endl;
+	cout << "注册时间：" << DL->Account[id].RegisterTime << endl;
+	system("pause");
+}
+
+void FindAccount(DataLib* DL)
+{
+	system("cls");
+	int ID = 0;
+	string Name;
+	cout << "1.ID查询" << endl;
+	cout << "2.用户名查询" << endl;
+	cout << "0.返回" << endl;
+	int SeletchFindWay = 0;
+	while (true)
+	{
+		cin >> SeletchFindWay;
+		switch (SeletchFindWay)
+		{
+		case 1:UseIDFind(DL, ID);
+			return;
+		case 2:UseNameFind(DL, Name);
+			return;
+		case 0:
+			system("pause");
+			system("cls");
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+void CorrectAccountName(DataLib* DL, string name, int id,string path)
+{
+	cout << "请输入要更改的用户名：" << endl;
+	cin >> name;
+	for (int Check = 1; Check <= MaxAccountQuality; Check++)
+	{
+		if (name == DL->Account[id].AccountName)
+		{
+			cout << "与当前使用账户名重复。" << endl;
+			cout << "请输入要更改的用户名：" << endl;
+			cin >> name;
+			Check = 1;
+		}
+		if (name == DL->Account[Check].AccountName)
+		{
+			cout << "此用户名已被使用" << endl;
+			cout << "请输入要更改的用户名：" << endl;
+			cin >> name;
+			Check = 1;
+		}
+	}
+	DL->Account[id].AccountName = name;
+
+	std::ifstream i(path);
+	nlohmann::json j;
+	i >> j;
+
+	// 修改JSON元素的值
+	j["Name"] = DL->Account[id].AccountName;
+
+	// 将更改后的JSON数据写回文件
+	std::ofstream o(path);
+	o << j.dump(4); // 4是缩进级别，用于美化输出
+
+	cout << "修改完成！" << endl;
+}
+
+void CorrectAccountPassword(DataLib* DL, string password, string password_again, int id,string path)
+{
+	string pwd;
+
+	while (true)
+	{
+		cout << "请输入当前密码：" << endl;
+		cin >> pwd;
+		if (pwd == DL->Account[id].AccountPassword)
+		{
+			break;
+		}
+		cout << "密码错误！" << endl;
+	}
+
+	cout << "请输入要修改的密码：" << endl;
+	cin >> password;
+	while (true)
+	{
+		cout << "再次输入以确认:" << endl;
+		cin >> password_again;
+		if (password_again == password)
+		{
+			break;
+		}
+		cout << "两次输入的不一致！" << endl;
+	}
+	DL->Account[id].AccountPassword = password_again;
+
+	std::ifstream i(path);
+	nlohmann::json j;
+	i >> j;
+
+	// 修改JSON元素的值
+	j["Password"] = DL->Account[id].AccountPassword;
+
+	// 将更改后的JSON数据写回文件
+	std::ofstream o(path);
+	o << j.dump(4); // 4是缩进级别，用于美化输出
+
+	cout << "修改完成！" << endl;
+}
+
+void CorrectEmailAddress(DataLib* DL, string email, int id,string path)
+{
+	cout << "请输入要更改的邮箱：" << endl;
+	cin >> email;
+	for (int Check = 1; Check <= MaxAccountQuality; Check++)
+	{
+		if (email == DL->Account[id].EmailAddress)
+		{
+			cout << "与当前绑定邮箱重复。" << endl;
+			cout << "请输入要更改的邮箱：" << endl;
+			cin >> email;
+			Check = 1;
+		}
+		if (email == DL->Account[Check].EmailAddress)
+		{
+			cout << "此邮箱已绑定" << endl;
+			cout << "请输入要更改的邮箱：" << endl;
+			cin >> email;
+			Check = 1;
+		}
+	}
+	DL->Account[id].EmailAddress = email;
+
+	std::ifstream i(path);
+	nlohmann::json j;
+	i >> j;
+
+	// 修改JSON元素的值
+	j["EmailAddress"] = DL->Account[id].EmailAddress;
+
+	// 将更改后的JSON数据写回文件
+	std::ofstream o(path);
+	o << j.dump(4); // 4是缩进级别，用于美化输出
+
+	cout << "修改完成！" << endl;
+}
+
+void CorrectSafetyCheck(DataLib *DL, bool safetycheck, int id,string path)
+{
+	bool Select = true;
+
+	do
+	{
+		cout << "开启还是关闭？（0关闭，大于1为开）" << endl;
+		cin >> Select;
+		if (Select == false)
+		{
+			if (DL->Account[id].LoginAccountSafetyCheck != false)
+			{
+				DL->Account[id].LoginAccountSafetyCheck = false;
+				cout << "关闭成功！" << endl;
+
+				std::ifstream i(path);
+				nlohmann::json j;
+				i >> j;
+
+				// 修改JSON元素的值
+				j["SafetyCheck"] = DL->Account[id].LoginAccountSafetyCheck;
+
+				// 将更改后的JSON数据写回文件
+				std::ofstream o(path);
+				o << j.dump(4); // 4是缩进级别，用于美化输出
+
+				break;
+			}
+			cout << "已经关闭！" << endl;
+		}
+		else {
+			if (DL->Account[id].LoginAccountSafetyCheck != true)
+			{
+				DL->Account[id].LoginAccountSafetyCheck = true;
+
+				std::ifstream i(path);
+				nlohmann::json j;
+				i >> j;
+
+				// 修改JSON元素的值
+				j["SafetyCheck"] = DL->Account[id].LoginAccountSafetyCheck;
+
+				// 将更改后的JSON数据写回文件
+				std::ofstream o(path);
+				o << j.dump(4); // 4是缩进级别，用于美化输出
+
+				cout << "开启成功！" << endl;
+				break;
+			}
+			cout << "已经开启！" << endl;
+		}
+	} while (true);
+}
+
+void CorrectAccountInformation(DataLib* DL)
+{
+	system("cls");
+	string Name;
+	string Password, Password_Again;
+	string Email;
+	bool SafetyCheck = true;
+
+	int ID = 0;
+	while (true)
+	{
+		cout << "输入要修改的用户ID:" << endl;
+		cin >> ID;
+		if (0 < ID < MaxAccountQuality)
+		{
+			if (DL->Account[ID].AccountID != 0)
+			{
+				break;
+			}
+		}
+		cout << "用户不存在，请重新输入！" << endl;
+	}
+
+	int BeginFolderPosition = DL->Account[ID].AccountID / MaxFolderAccountQuality;
+	int EndFolderPosition = DL->Account[ID].AccountID % MaxFolderAccountQuality;
+	int BeginFilePosition = (BeginFolderPosition * MaxFolderAccountQuality) + 1;
+	int EndFilePosition = BeginFilePosition + (MaxFolderAccountQuality - 1);
+
+	string AccountJsonPosition = "./DataLib/" + to_string(BeginFilePosition) + "-" + to_string(EndFilePosition) + "/" + to_string(ID) + ".json";
+
+
+	system("cls");
+	cout << "1.修改用户名" << endl;
+	cout << "2.修改密码" << endl;
+	cout << "3.修改邮箱" << endl;
+	cout << "4.修改安全设置" << endl;
+	cout << "0.返回" << endl;
+
+	int SelectCorrectType;
+	while (true)
+	{
+		cin >> SelectCorrectType;
+		switch (SelectCorrectType)
+		{
+		case 1:CorrectAccountName(DL, Name, ID, AccountJsonPosition);
+			return;
+		case 2:CorrectAccountPassword(DL, Password, Password_Again, ID, AccountJsonPosition);
+			return;
+		case 3:CorrectEmailAddress(DL, Email, ID, AccountJsonPosition);
+			return;
+		case 4:CorrectSafetyCheck(DL, SafetyCheck, ID, AccountJsonPosition);
+			return;
+		case 0:
+			system("pause");
+			system("cls");
+			return;
+		default:
+			break;
+		}
+	}
+}
+
 
 int main()
 {
@@ -419,9 +735,9 @@ int main()
 			break;
 		case 3:ExhibitAccount(&DL);
 			break;
-		case 4:
+		case 4:FindAccount(&DL);
 			break;
-		case 5:
+		case 5:CorrectAccountInformation(&DL);
 			break;
 		case 6:
 			break;
