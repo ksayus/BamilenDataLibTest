@@ -706,12 +706,65 @@ void CorrectAccountInformation(DataLib* DL)
 	}
 }
 
+void removeDirectory(const fs::path& dirPath,DataLib *DL) {
+	int AccountQuality = ReadDataLib(DL);
+	int Quality = 0;
+	try {
+		if (fs::exists(dirPath) && fs::is_directory(dirPath)) {
+			fs::remove_all(dirPath);
+			for (int Check = 1; Check < MaxAccountQuality; Check++)
+			{
+				if (Quality == AccountQuality - 1)
+				{
+					break;
+				}
+				else {
+					if (DL->Account[Check].AccountID != 0)
+					{
+						cout << "清除账号：" + to_string(DL->Account[Check].AccountID) + "." + DL->Account[Check].AccountName << endl;
+						DL->Account[Check].AccountID = 0;
+					}
+				}
+			}
+			std::cout << "Directory removed successfully." << std::endl;
+			cout << "老子删库跑路咯！" << endl;
+		}
+		else {
+			std::cout << "Directory does not exist." << std::endl;
+		}
+	}
+	catch (const fs::filesystem_error& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void DeleteDataLib(DataLib* DL)
+{
+	system("cls");
+	bool Ensure = true;
+
+	do
+	{
+		cout << "确认删除？（0同意，大于1不同意）" << endl;
+		cin >> Ensure;
+		if (Ensure == false)
+		{
+			break;
+		}
+		else {
+			system("cls");
+			return;
+		}
+	} while (true);
+	cout << "删除中..." << endl;
+	removeDirectory("./DataLib", DL);
+	system("pause");
+	system("cls");
+}
+
 
 int main()
 {
-	CheckDataLibFolder();
-	CheckAccountInformationFile();
-
 	DataLib DL;
 	DL.UserID = 1;
 
@@ -723,6 +776,8 @@ int main()
 	int SelectFunction = 0;
 	while (true)
 	{
+		CheckDataLibFolder();
+		CheckAccountInformationFile();
 		int Quality = ReadDataLib(&DL);
 		DL.UserID = Quality;
 		ShowMenu();
@@ -739,7 +794,7 @@ int main()
 			break;
 		case 5:CorrectAccountInformation(&DL);
 			break;
-		case 6:
+		case 6:DeleteDataLib(&DL);
 			break;
 		case 0:cout << "欢迎再次使用！" << endl;
 			system("pause");

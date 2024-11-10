@@ -19,4 +19,22 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Bamilen数据库模拟.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="F:\MyProject\OC Project\Bamilen\Logo\Bamilen-Logo.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="F:\MyProject\OC Project\Bamilen\Logo\Bamilen.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
