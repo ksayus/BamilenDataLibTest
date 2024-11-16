@@ -207,7 +207,7 @@ void AddAccount(DataLib * DL)
 		}
 		if (Name == DL->Account[Check].AccountName)
 		{
-			cout << "账号邮箱重复，请重新输入" << endl;
+			cout << "账号名称重复，请重新输入" << endl;
 			cin >> Name;
 			Check = 1;
 		}
@@ -237,6 +237,12 @@ void AddAccount(DataLib * DL)
 		if (DL->Account[Check].AccountID == 0)
 		{
 			break;
+		}
+		if (Email.find("@") == std::string::npos)
+		{
+			cout << "邮箱格式不正确！" << endl;
+			cin >> Email;
+			Check = 1;
 		}
 		if (Email == DL->Account[Check].EmailAddress)
 		{
@@ -559,6 +565,12 @@ void CorrectEmailAddress(DataLib* DL, string email, int id,string path)
 	cin >> email;
 	for (int Check = 1; Check <= MaxAccountQuality; Check++)
 	{
+		if (email.find("@") == std::string::npos)
+		{
+			cout << "邮箱格式错误！" << endl;
+			cin >> email;
+			Check = 1;
+		}
 		if (email == DL->Account[id].EmailAddress)
 		{
 			cout << "与当前绑定邮箱重复。" << endl;
